@@ -1,0 +1,77 @@
+#!/bin/bash
+#---------------------
+# module load impi & intel
+# TRACER MODEL
+# bsub < run_tracer
+#---------------------
+#BSUB -J expKL_ctest4
+#BSUB -W 30:30
+#BSUB -o GSH%J.out
+#BSUB -e GSH%J.err
+#BSUB -n 30                       # Specify number of cores (CPUs)
+#BSUB -R span[ptile=16]            # Request * cores per node
+#BUSB -R "rusage[mem=5000]"       # Request *MB per core
+#BSUB -q parallel
+#BSUB -P ome
+#BSUB -u 
+#BSUB -B
+#BSUB -N
+#BSUB -x
+#
+set echo
+#setenv OMP_NUM_THREADS 16
+#
+# --- Offline tracer model
+# 
+C
+C ---  R  is region directory
+C ---  D  is data directory containing the archives
+C ---  DT is time interval between archive files
+C
+date
+export R=HR_GS
+
+# start from TI:022-900
+export TI=022
+export TO=330
+
+export YE=`echo $TO | awk '{printf("%4.4d", $1/365+1)}'`
+export TE=`echo $TO $YE | awk '{printf("%3.3d", $1-($2-1)*366+1)}'`
+echo 'Final day:' $YE'_'$TE 
+export D=/scratch/projects/ome/hra_expt/UVDP_CS
+
+# change the current working directory to D
+cd $D
+
+# write params into the executable
+./tracers_KLsubtract_ctest4 << E-o-D
+   4      'yrflag' = days in year flag (0=360, 1=366, 2=366J1, 3=actual, 4=365)
+   0      'time_s' = start of archive (6939 for 12/31/1919) or 0 (no real dates)
+  365     'arch_l' = length of archive in days (for recycling in multi-year runs) (for forcing flds)
+ ${TI}    'time_i' = initial day for the tracer integration
+ ${TO}    'time_o' = final day for the tracer integration
+  12.0    'archfq' = intervals between archive input (hours)
+   1.0    'archin' = time step for the tracer (hours)
+ 1569     'ii    ' = longitudinal domain size (excluding buffer points)
+ 1069     'jj    ' = latitudinal  domain size (excluding buffer points)
+  30      'kdm   ' = total number of layers
+  30      'kk    ' = actual number of top layers used
+ 34.0     'thbase' = reference sigma 
+   3      'nforf ' = number of daily-mean forcing fields ('u', 'v', 'dpm')
+   1      'ntracr' = number of tracers
+   0      'tracin' = Initial conditions: 0: initialize; 1:read from restart_tracer_in.a,b; 2:read from relax.tracer.a,b
+   1      'mxlflg' = ML flag: 0: no extra mixing in mixed layer; 1: homogenization of ML
+   0      'ghtflg' = NON_LOCAL mixing flag: 0: no nonlocal mixing; 1: nonlocal mixing ("ghat" term)
+   0      'trcflg' = Boundary conditions for tracer: 0: no BC; 1: linear increase SBC; 2: pulse SBC; 3: pulse LBC
+   3      'difflg' = Horizontal diffusivity flag: 0: scalar constant diffusivity; 1: scalar space-dependent diffusivity; 2:  diffusivity tensor; 3: KL scheme
+   0      'forflg' = 0: no sources/sinks (forcing) 
+   0      'timflg' = Type of forcing: 0: regular forcing; 1: climatology; 2: annual-mean
+  24.0    'diagfq' = intervals between tracer diagnostic (hours)
+   2      'iord  ' = 1: simple donnor cell; 2: complete with antidiffusive fluxes
+  900     'itest ' = i for printout
+  600     'jtest ' = j for printout
+E-o-D
+date
+
+#cp restart_out_${YE}_${TE}_00.a restart_tracr_in.a
+#cp restart_out_${YE}_${TE}_00.b restart_tracr_in.b

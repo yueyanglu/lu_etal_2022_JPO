@@ -1,0 +1,27 @@
+#!/bin/bash
+#---------------------
+# MEAN FORCING
+# bsub < run_meanfoc
+#---------------------
+#BSUB -J meanforc
+#BSUB -W 0:10
+#BSUB -o FOC%J.out
+#BSUB -e FOC%J.err
+#BSUB -n 16                        # Request * cores
+#BSUB -R span[ptile=16]            # Request * cores per node
+#BUSB -R "rusage[mem=8000]"       # Request *MB per core
+#BSUB -q parallel
+#BSUB -P ome
+#BSUB -u 
+#BSUB -B
+#BSUB -N
+#BSUB -x
+#
+# compile the *.f
+ifort -g -O3 -convert big_endian -openmp -o mfoc2 calc_mean_uvdp_HRA.f
+# Start time
+date
+# Run
+./mfoc2 
+# End time
+date
