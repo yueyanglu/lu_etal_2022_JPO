@@ -1,2 +1,2 @@
 # lu_etal
-The code and (some of) data to reproduce the results in our paper submitted to JPO.
+The code and data to reproduce the results and figures in our paper submitted to JPO.
