@@ -1,5 +1,0 @@
-ifort -DIA32 -DREAL4 -g -O3 -convert big_endian -openmp -c mod_tracer.F
-ifort             -g -O3 -convert big_endian -openmp -c geopar.f
-ifort             -g -O3 -convert big_endian -openmp -c getdat.f
-ifort -g -O3 -convert big_endian -openmp -Vaxlib tracers.o    mod_tracer.o mod_za.o mod_xc.o wtime.o blkin.o geopar.o getdat.o zh.o matinv.o  -o tracers
-ifort: command line remark #10010: option '-Vaxlib' is deprecated and will be removed in a future release. See '-help deprecated'
