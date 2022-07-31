@@ -3,26 +3,11 @@ clear
 hycom_domain = 'GSH';
 read_HYCOM_grid;
 
-%%
-% ---- plot diffusivities (left) and advective fluxes (right)
+%% load diffusivities and advective params (med and 20-80 perct)
 
-f_Ktens = load('fluc_K_div_noextraSM_Z24.mat'); 
-% new2: (lmd1+lmd2)/2
-f_Kred = load('fluc_K_isoA_div_noextraSM_Z24.mat');
-f_KL = load('fluc_KLadv_noextraSM_iso_Z24.mat');
+load('fluc_diffusadv_params.mat'); 
 
-% diffus
-flucLmd12_al = f_Ktens.flucLmd12_al; % flucPhi_al flucLmd12_al
-flucKiso_al = f_Kred.flucK_al;
-flucKappa_al = f_KL.flucK_al;
-
-% adv
-flucuvA_Ktens_al = f_Ktens.fluc_uvA_al; 
-flucuvA_Kred_al = f_Kred.flucA_al;
-flucChi_al = f_KL.flucL_al;
-
-
-%% plot
+%% plot diffusivities (left) and advective fluxes (right)
 
 %------- 
 % together
@@ -44,9 +29,12 @@ plt_fields_L3 = flucKappa_al;
 
 % right
 title_R = '';%'advective part';
-legendStr_R = {'$-\hat{\textbf{z}} \times \nabla A$',... % _{\textbf{K}}
-    '$-\hat{\textbf{z}} \times \nabla A_{red}$',...
-    ' \boldmath{$\chi$} '};
+% legendStr_R = {'$-\hat{\textbf{z}} \times \nabla A$',... % _{\textbf{K}}
+%     '$-\hat{\textbf{z}} \times \nabla A_{red}$',...
+%     ' \boldmath{$\chi$} '};
+legendStr_R = {'$\textbf{u}^*_c$',... % _{\textbf{K}}
+    '$\textbf{u}^*_{c-red}$',...
+    '\boldmath{$\chi$}$/\langle{h}\rangle$'};
 plt_fields_R1 = flucuvA_Ktens_al;
 plt_fields_R2 = flucuvA_Kred_al;
 plt_fields_R3 = flucChi_al;
@@ -64,16 +52,10 @@ ncel = numel(plt_fields_L1) - 1; % !!!!!!!!!!!! ---------
 
 % ------ plot left-1
 axes(ha(1));
-for icel = 1:ncel
-    % ---- exchange
-    f_do = plt_fields_L1{icel}(:,:,it);
-    %
-    [f_m(icel),f_med(icel),f_h(icel),f_l(icel)] = stats_ptc(f_do,75,25);
-end
 % plot
 x = 1 : ncel;
-y = f_med(x);
-[neg, pos] = deal(y - f_l(x), f_h(x) - y);
+y = fL_med{1}(x);
+[neg, pos] = deal(y - fL_l{1}(x), fL_h{1}(x) - y);
 h = errorbar(x-dx_plt,y,neg,pos); 
 ax = gca;
 % set properties
@@ -96,16 +78,10 @@ ax.XLabel.String = xlabelStr; ax.YLabel.String = ylabelStr;
 hold on
 
 % ------ plot left - 2
-for icel = 1:ncel
-    % ---- exchange
-    f_do = plt_fields_L2{icel}(:,:,it);
-    %
-    [f_m(icel),f_med(icel),f_h(icel),f_l(icel)] = stats_ptc(f_do,75,25);
-end
 % plot
 x = 1 : ncel;
-y = f_med(x);
-[neg, pos] = deal(y - f_l(x), f_h(x) - y);
+y = fL_med{2}(x);
+[neg, pos] = deal(y - fL_l{2}(x), fL_h{2}(x) - y);
 h = errorbar(x,y,neg,pos); 
 ax = gca;
 % set properties
@@ -115,16 +91,10 @@ h.LineStyle = 'none';
 hold on
 
 % ------ plot left - 3
-for icel = 1:ncel
-    % ---- exchange
-    f_do = plt_fields_L3{icel}(:,:,it);
-    %
-    [f_m(icel),f_med(icel),f_h(icel),f_l(icel)] = stats_ptc(f_do,75,25);
-end
 % plot
 x = 1 : ncel;
-y = f_med(x);
-[neg, pos] = deal(y - f_l(x), f_h(x) - y);
+y = fL_med{3}(x);
+[neg, pos] = deal(y - fL_l{3}(x), fL_h{3}(x) - y);
 h = errorbar(x+dx_plt,y,neg,pos); 
 ax = gca;
 % set properties
@@ -138,16 +108,9 @@ lgd.FontSize = 12;
 % ------------- right 
 % ------ plot r-1
 axes(ha(2));
-for icel = 1:ncel
-    % ---- exchange
-    f_do = plt_fields_R1{icel}(:,:,it);
-    %
-    [f_m(icel),f_med(icel),f_h(icel),f_l(icel)] = stats_ptc(f_do,75,25);
-end
-% plot
 x = 1 : ncel;
-y = f_med(x);
-[neg, pos] = deal(y - f_l(x), f_h(x) - y);
+y = fR_med{1}(x);
+[neg, pos] = deal(y - fR_l{1}(x), fR_h{1}(x) - y);
 h = errorbar(x-dx_plt,y,neg,pos); 
 ax = gca;
 % set properties
@@ -170,16 +133,9 @@ ax.XLabel.String = xlabelStr;
 hold on
 
 % ------ plot r - 2
-for icel = 1:ncel
-    % ---- exchange
-    f_do = plt_fields_R2{icel}(:,:,it);
-    %
-    [f_m(icel),f_med(icel),f_h(icel),f_l(icel)] = stats_ptc(f_do,75,25);
-end
-% plot
 x = 1 : ncel;
-y = f_med(x);
-[neg, pos] = deal(y - f_l(x), f_h(x) - y);
+y = fR_med{2}(x);
+[neg, pos] = deal(y - fR_l{2}(x), fR_h{2}(x) - y);
 h = errorbar(x,y,neg,pos); 
 ax = gca;
 % set properties
@@ -189,16 +145,9 @@ h.LineStyle = 'none';
 hold on
 
 % ------ plot r - 3
-for icel = 1:ncel
-    % ---- exchange
-    f_do = plt_fields_R3{icel}(:,:,it);
-    %
-    [f_m(icel),f_med(icel),f_h(icel),f_l(icel)] = stats_ptc(f_do,80,20);
-end
-% plot
 x = 1 : ncel;
-y = f_med(x);
-[neg, pos] = deal(y - f_l(x), f_h(x) - y);
+y = fR_med{3}(x);
+[neg, pos] = deal(y - fR_l{3}(x), fR_h{3}(x) - y);
 h = errorbar(x+dx_plt,y,neg,pos); 
 ax = gca;
 % set properties
