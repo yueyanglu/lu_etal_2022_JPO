@@ -7,4 +7,4 @@
 
 The code and data to reproduce the results and figures in our paper submitted to JPO. 
 
-Source code of the model with different flow components (../tracer_model/src9_v3*) is available upon request from Yueyang Lu.
+Source code of the model with different flow components (/tracer_model/src9_v3*) is available upon request from Yueyang Lu.
